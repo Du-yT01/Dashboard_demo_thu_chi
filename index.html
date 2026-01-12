@@ -244,53 +244,63 @@
         .selector-container {
             background: white;
             border-radius: 12px;
-            padding: 22px;
-            margin-bottom: 24px;
+            padding: 16px;
+            margin-bottom: 18px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         .selector-group {
-            margin-bottom: 18px;
+            margin-bottom: 12px;
         }
 
         .selector-label {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .checkbox-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
         }
 
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 12px;
+            gap: 6px;
+            padding: 8px 10px;
             background: var(--bg-light);
             border-radius: 8px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
+        }
+        .checkbox-item input {
+            flex: 0 0 auto;
+        }
+        .checkbox-item label {
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .checkbox-item:hover { background: #E5E7EB; }
         .checkbox-item input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
 
         .subitem-scroll {
-            max-height: 200px;
+            max-height: 160px;
             overflow-y: auto;
-            padding: 10px;
+            padding: 8px;
             border: 1px solid var(--border);
             border-radius: 8px;
             background: white;
         }
 
         .subitem-grid {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr));
         }
 
         .subitem-scroll .checkbox-item {
@@ -457,7 +467,7 @@
                     <div class="kpi-card"><div class="kpi-label">V0</div><div class="kpi-value">125.8 Tỷ</div><div class="kpi-change positive">Phê duyệt</div></div>
                     <div class="kpi-card"><div class="kpi-label">Hiện Tại</div><div class="kpi-value">142.3 Tỷ</div><div class="kpi-change negative">+13.1%</div></div>
                     <div class="kpi-card"><div class="kpi-label">Chênh Lệch</div><div class="kpi-value">+16.5 Tỷ</div><div class="kpi-change negative">Vượt</div></div>
-                    <div class="kpi-card"><div class="kpi-label">Lần Điều Chỉnh</div><div class="kpi-value">7 Lần</div><div class="kpi-change positive">12 tháng</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Số lượng dự án</div><div class="kpi-value">7 Lần</div><div class="kpi-change positive">12 tháng</div></div>
                 </div>
 
                 <div class="chart-grid">
@@ -467,8 +477,8 @@
                 </div>
 
                 <div class="chart-grid two">
-                    <div class="chart-card"><div class="chart-title">📋 Chi Tiết Ngân Sách V0 Baseline - 12 Tháng</div><div style="overflow-x: auto; max-height: 400px;"><table class="matrix-table"><thead><tr><th>Hạng Mục</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th><th>T8</th><th>T9</th><th>T10</th><th>T11</th><th>T12</th><th>Tổng</th></tr></thead><tbody><tr><td><strong>DA Alpha</strong></td><td>1.8</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.1</td><td>2.1</td><td>2.1</td><td>2.2</td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>25.3</td></tr><tr><td><strong>DA Beta</strong></td><td>2.1</td><td>2.2</td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.6</td><td>2.8</td><td>28.5</td></tr><tr><td><strong>DA Gamma</strong></td><td>1.4</td><td>1.5</td><td>1.5</td><td>1.6</td><td>1.6</td><td>1.7</td><td>1.7</td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.9</td><td>2.1</td><td>20.1</td></tr><tr><td><strong>DA Delta</strong></td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.6</td><td>2.7</td><td>2.8</td><td>3.1</td><td>29.4</td></tr><tr><td><strong>DA Epsilon</strong></td><td>1.6</td><td>1.7</td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.9</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.0</td><td>2.1</td><td>2.3</td><td>22.5</td></tr></tbody></table></div></div>
-                    <div class="chart-card"><div class="chart-title">📋 Chi Tiết Ngân Sách Latest Version - 12 Tháng</div><div style="overflow-x: auto; max-height: 400px;"><table class="matrix-table"><thead><tr><th>Hạng Mục</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th><th>T8</th><th>T9</th><th>T10</th><th>T11</th><th>T12</th><th>Tổng</th></tr></thead><tbody><tr><td><strong>DA Alpha</strong></td><td>2.0</td><td>2.1</td><td>2.1</td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.7</td><td>2.8</td><td>28.5</td></tr><tr><td><strong>DA Beta</strong></td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.7</td><td>2.7</td><td>2.8</td><td>2.9</td><td>2.9</td><td>3.0</td><td>3.1</td><td>3.3</td><td>32.1</td></tr><tr><td><strong>DA Gamma</strong></td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.0</td><td>2.1</td><td>2.1</td><td>2.1</td><td>2.2</td><td>2.2</td><td>23.8</td></tr><tr><td><strong>DA Delta</strong></td><td>2.7</td><td>2.8</td><td>2.8</td><td>2.9</td><td>3.0</td><td>3.0</td><td>3.1</td><td>3.2</td><td>3.2</td><td>3.3</td><td>3.4</td><td>3.5</td><td>35.9</td></tr><tr><td><strong>DA Epsilon</strong></td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.7</td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.8</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.0</td><td>22.0</td></tr></tbody></table></div></div>
+                    <div class="chart-card"><div class="chart-title">📋 Chi Tiết Ngân Sách V0 Baseline - 12 Tháng</div><div style="overflow-x: auto; max-height: 400px;"><table class="matrix-table heatmap-table" data-heatmap="green"><thead><tr><th>Hạng Mục</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th><th>T8</th><th>T9</th><th>T10</th><th>T11</th><th>T12</th><th>Tổng</th></tr></thead><tbody><tr><td><strong>DA Alpha</strong></td><td>1.8</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.1</td><td>2.1</td><td>2.1</td><td>2.2</td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>25.3</td></tr><tr><td><strong>DA Beta</strong></td><td>2.1</td><td>2.2</td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.6</td><td>2.8</td><td>28.5</td></tr><tr><td><strong>DA Gamma</strong></td><td>1.4</td><td>1.5</td><td>1.5</td><td>1.6</td><td>1.6</td><td>1.7</td><td>1.7</td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.9</td><td>2.1</td><td>20.1</td></tr><tr><td><strong>DA Delta</strong></td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.6</td><td>2.7</td><td>2.8</td><td>3.1</td><td>29.4</td></tr><tr><td><strong>DA Epsilon</strong></td><td>1.6</td><td>1.7</td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.9</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.0</td><td>2.1</td><td>2.3</td><td>22.5</td></tr></tbody></table></div></div>
+                    <div class="chart-card"><div class="chart-title">📋 Chi Tiết Ngân Sách Latest Version - 12 Tháng</div><div style="overflow-x: auto; max-height: 400px;"><table class="matrix-table heatmap-table" data-heatmap="red"><thead><tr><th>Hạng Mục</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th><th>T8</th><th>T9</th><th>T10</th><th>T11</th><th>T12</th><th>Tổng</th></tr></thead><tbody><tr><td><strong>DA Alpha</strong></td><td>2.0</td><td>2.1</td><td>2.1</td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.7</td><td>2.8</td><td>28.5</td></tr><tr><td><strong>DA Beta</strong></td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.7</td><td>2.7</td><td>2.8</td><td>2.9</td><td>2.9</td><td>3.0</td><td>3.1</td><td>3.3</td><td>32.1</td></tr><tr><td><strong>DA Gamma</strong></td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.0</td><td>2.1</td><td>2.1</td><td>2.1</td><td>2.2</td><td>2.2</td><td>23.8</td></tr><tr><td><strong>DA Delta</strong></td><td>2.7</td><td>2.8</td><td>2.8</td><td>2.9</td><td>3.0</td><td>3.0</td><td>3.1</td><td>3.2</td><td>3.2</td><td>3.3</td><td>3.4</td><td>3.5</td><td>35.9</td></tr><tr><td><strong>DA Epsilon</strong></td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.7</td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.8</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.0</td><td>22.0</td></tr></tbody></table></div></div>
                 </div>
             </div>
 
@@ -735,6 +745,57 @@
 
         const colors = { primary: '#DC2626', secondary: '#EF4444', accent: '#F87171', light: '#FCA5A5', gray: '#9CA3AF', success: '#10B981', warning: '#F59E0B' };
 
+        function applyHeatmap(table) {
+            const mode = table.dataset.heatmap || 'green';
+            const hue = mode === 'red' ? 0 : 145;
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            if (!rows.length) return;
+
+            const colCount = rows[0].cells.length;
+            if (colCount < 2) return;
+
+            const stats = [];
+            for (let c = 1; c < colCount; c++) {
+                const values = [];
+                rows.forEach(row => {
+                    const cell = row.cells[c];
+                    if (!cell) return;
+                    const raw = cell.textContent.replace(/[^0-9.-]/g, '');
+                    if (!raw) return;
+                    const value = parseFloat(raw);
+                    if (!Number.isNaN(value)) values.push(value);
+                });
+                if (!values.length) {
+                    stats[c] = { min: 0, range: 1 };
+                    continue;
+                }
+                const min = Math.min(...values);
+                const max = Math.max(...values);
+                stats[c] = { min, range: max - min || 1 };
+            }
+
+            rows.forEach(row => {
+                for (let c = 1; c < row.cells.length; c++) {
+                    const cell = row.cells[c];
+                    const raw = cell.textContent.replace(/[^0-9.-]/g, '');
+                    if (!raw) continue;
+                    const value = parseFloat(raw);
+                    if (Number.isNaN(value)) continue;
+                    const stat = stats[c] || { min: 0, range: 1 };
+                    const t = (value - stat.min) / stat.range;
+                    const lightness = 92 - t * 42;
+                    const color = `hsl(${hue}, 60%, ${lightness}%)`;
+                    cell.style.backgroundColor = color;
+                    cell.style.color = lightness < 62 ? '#FFFFFF' : '#111827';
+                    cell.style.fontWeight = lightness < 65 ? '600' : '500';
+                }
+            });
+        }
+
+        function applyHeatmaps() {
+            document.querySelectorAll('table[data-heatmap]').forEach(applyHeatmap);
+        }
+
         // Navigation
         document.querySelectorAll('.nav-item').forEach((item) => {
             item.addEventListener('click', (e) => {
@@ -795,7 +856,7 @@
             type: 'doughnut',
             data: {
                 labels: ['Thu từ CDT (77.6%)', 'Thu Hoạt Động TÀI CHÍNH (12.4%)', 'Thu Nguồn Khác (4.8%)', 'Khác (2.9%)'],
-                datasets: [{ data: [77.6, 12.4, 4.8, 2.9], backgroundColor: [colors.primary, colors.secondary, colors.accent, colors.light] }]
+                datasets: [{ data: [77.6, 12.4, 4.8, 2.9], backgroundColor: ['#065F46', '#10B981', '#6EE7B7', '#D1FAE5'] }]
             },
             options: chartConfig
         });
@@ -1251,6 +1312,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             updateImpact();
+            applyHeatmaps();
 
             const parentInputs = Array.from(document.querySelectorAll('input[data-level="parent"]'));
             const childInputs = Array.from(document.querySelectorAll('input[data-level="child"]'));
