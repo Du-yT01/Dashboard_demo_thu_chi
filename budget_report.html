@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Quản Trị Ngân Sách & Thu - Chi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #DC2626;
+            --primary-dark: #B91C1C;
+            --primary-light: #FEE2E2;
+            --secondary: #EF4444;
+            --bg-dark: #1F2937;
+            --bg-light: #F9FAFB;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--bg-light); color: var(--text-primary); }
+
+        .app-wrapper {
+            display: flex;
+            min-height: 100vh;
+            background: var(--bg-light);
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: linear-gradient(180deg, var(--bg-dark) 0%, #111827 100%);
+            color: white;
+            padding: 24px 16px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            overflow-y: auto;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding: 16px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text { font-weight: 700; line-height: 1.2; font-size: 13px; }
+
+        .nav-item {
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 13px;
+            font-weight: 500;
+            color: #9CA3AF;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-item.active { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; box-shadow: 0 4px 12px rgba(220,38,38,0.3); }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px 60px;
+            width: calc(100% - 280px);
+            overflow-x: hidden;
+        }
+
+        .page { display: none; animation: fadeIn 0.4s; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .page-header {
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .page-title { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+        .page-subtitle { color: var(--text-secondary); font-size: 14px; }
+
+        /* KPI GRID */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+        .kpi-grid.page2-summary { grid-template-columns: repeat(5, 1fr); }
+        .kpi-grid.page4-summary { grid-template-columns: repeat(3, 1fr); }
+        .kpi-grid.page5-summary { grid-template-columns: repeat(3, 1fr); }
+
+        .kpi-card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+
+        .kpi-label { font-size: 12px; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px; }
+        .kpi-value { font-size: 26px; font-weight: 700; color: var(--text-primary); }
+        .kpi-change { font-size: 12px; margin-top: 8px; padding: 4px 8px; border-radius: 4px; display: inline-block; }
+        .kpi-change.positive { background: #D1FAE5; color: var(--success); font-weight: 600; }
+        .kpi-change.negative { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+
+        /* INSIGHT ROW - SHORT & SWEET */
+        .insight-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .insight-item {
+            background: white;
+            padding: 16px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+            font-size: 13px;
+            line-height: 1.6;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+        }
+
+        .insight-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .insight-item strong { display: block; color: var(--text-primary); margin-bottom: 4px; }
+
+        /* CHART GRID - 3 COLUMNS */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .chart-grid.two { grid-template-columns: repeat(2, 1fr); }
+        .chart-grid.page3-two { display: flex; gap: 20px; align-items: stretch; }
+        .chart-grid.single { grid-template-columns: 1fr; }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .chart-card:hover { 
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+        }
+
+        .chart-container.small { height: 260px; }
+        .chart-container.tall { height: 380px; }
+        .chart-container.gauge { height: 300px; }
+        .stacked-col {
+            flex: 0 0 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .stacked-col .chart-card {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 0;
+        }
+
+        .stacked-col .chart-container {
+            flex: 1 1 0;
+            height: auto;
+            min-height: 140px;
+        }
+
+        .table-col {
+            flex: 1;
+            display: flex;
+        }
+
+        .table-col .chart-card {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-col .chart-card > div + div {
+            flex: 1 1 auto;
+            overflow-x: auto;
+            max-height: 650px;
+        }
+        .page4-two .stacked-col .chart-card:first-child { display: none; }
+
+        /* PAGE 5 SPECIFIC */
+        .selector-container {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .selector-group {
+            margin-bottom: 18px;
+        }
+
+        .selector-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: var(--bg-light);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .checkbox-item:hover { background: #E5E7EB; }
+        .checkbox-item input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
+
+        .subitem-scroll {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+        }
+
+        .subitem-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .subitem-scroll .checkbox-item {
+            background: var(--bg-light);
+        }
+
+        /* MATRIX TABLE */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            background: white;
+        }
+
+        .matrix-table thead {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(220,38,38,0.05) 100%);
+            position: sticky;
+            top: 0;
+        }
+
+        .matrix-table th {
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .matrix-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            text-align: right;
+        }
+
+        .matrix-table td:first-child {
+            text-align: left;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: var(--bg-light);
+            position: sticky;
+            left: 0;
+        }
+
+        .matrix-table tbody tr:hover {
+            background: var(--primary-light);
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .impact-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--border);
+        }
+
+        .impact-card.warning { border-top-color: var(--warning); }
+        .impact-card.success { border-top-color: var(--success); }
+        .impact-card.danger { border-top-color: var(--danger); }
+
+        .impact-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; }
+        .impact-value { font-size: 28px; font-weight: 700; }
+
+        .decision-box {
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #111827 100%);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            margin-top: 24px;
+            color: white;
+        }
+
+        .decision-label { font-size: 12px; font-weight: 600; margin-bottom: 16px; opacity: 0.9; }
+        .decision-result { font-size: 32px; font-weight: 700; padding: 14px 28px; border-radius: 8px; display: inline-block; }
+        .decision-result.approve { background: var(--success); }
+        .decision-result.review { background: var(--warning); }
+        .decision-result.reject { background: var(--danger); }
+
+        @media (max-width: 1600px) {
+            .chart-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+            .insight-row { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+            .kpi-grid { gap: 16px; }
+        }
+
+        @media (max-width: 1200px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .kpi-grid.page2-summary { grid-template-columns: repeat(2, 1fr); }
+            .kpi-grid.page4-summary { grid-template-columns: repeat(2, 1fr); }
+            .kpi-grid.page5-summary { grid-template-columns: repeat(2, 1fr); }
+            .chart-grid { grid-template-columns: 1fr; }
+            .insight-row { grid-template-columns: 1fr; }
+            .chart-grid.page3-two { flex-direction: column; }
+            .chart-grid.page3-two > div:first-child { flex: 0 0 auto !important; width: 100% !important; }
+            .main-content { padding: 32px 40px; }
+            .chart-container.tall { height: 320px; }
+            .matrix-table { font-size: 11px; }
+            .matrix-table th { padding: 10px 6px; }
+            .matrix-table td { padding: 8px 6px; }
+        }
+
+        @media (max-width: 768px) {
+            .app-wrapper { flex-direction: column; }
+            .sidebar { position: relative; width: 100%; height: auto; }
+            .main-content { margin-left: 0; width: 100%; padding: 20px 24px; }
+            .page-header { margin-bottom: 20px; padding-bottom: 12px; }
+            .page-title { font-size: 24px; }
+            .page-subtitle { font-size: 12px; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .kpi-grid.page2-summary { grid-template-columns: 1fr; }
+            .kpi-grid.page4-summary { grid-template-columns: 1fr; }
+            .kpi-grid.page5-summary { grid-template-columns: 1fr; }
+            .kpi-value { font-size: 22px; }
+            .kpi-card { padding: 16px; }
+            .insight-row { grid-template-columns: 1fr; gap: 14px; }
+            .insight-item { padding: 12px; font-size: 12px; }
+            .chart-grid { gap: 16px; margin-bottom: 20px; }
+            .chart-card { padding: 16px; }
+            .chart-title { font-size: 13px; margin-bottom: 12px; }
+            .chart-container { height: 240px; }
+            .chart-container.small { height: 200px; }
+            .chart-container.tall { height: 280px; }
+            .chart-container.gauge { height: 240px; }
+            .checkbox-grid { grid-template-columns: 1fr; }
+            .subitem-grid { grid-template-columns: 1fr; }
+            .impact-grid { grid-template-columns: 1fr; }
+            .matrix-table { font-size: 10px; }
+            .matrix-table th { padding: 8px 4px; }
+            .matrix-table td { padding: 6px 4px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <div class="logo-text">QUẢN TRỊ<br>NGÂN SÁCH</div>
+            </div>
+            <div class="nav-item active" data-page="1"><span>📈</span> Ngân Sách</div>
+            <div class="nav-item" data-page="2"><span>📅</span> Hàng Tháng</div>
+            <div class="nav-item" data-page="3"><span>💰</span> Thu Thực Tế</div>
+            <div class="nav-item" data-page="4"><span>💸</span> Chi Thực Tế</div>
+            <div class="nav-item" data-page="5"><span>✅</span> Duyệt Chi</div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- PAGE 1 -->
+            <div id="page1" class="page active">
+                <div class="page-header">
+                    <h1 class="page-title">Quản Trị Ngân Sách Dự Án</h1>
+                    <p class="page-subtitle">Baseline vs Version Latest - Biến động từ phê duyệt đến hiện tại</p>
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card"><div class="kpi-label">V0</div><div class="kpi-value">125.8 Tỷ</div><div class="kpi-change positive">Phê duyệt</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Hiện Tại</div><div class="kpi-value">142.3 Tỷ</div><div class="kpi-change negative">+13.1%</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Chênh Lệch</div><div class="kpi-value">+16.5 Tỷ</div><div class="kpi-change negative">Vượt</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Lần Điều Chỉnh</div><div class="kpi-value">7 Lần</div><div class="kpi-change positive">12 tháng</div></div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-card"><div class="chart-title">📊 V0 vs Hiện Tại Theo Dự Án</div><div class="chart-container"><canvas id="chart1"></canvas></div></div>
+                    <div class="chart-card"><div class="chart-title">📈 Biến Động V0 vs Latest 12 Tháng</div><div class="chart-container"><canvas id="chart2"></canvas></div></div>
+                    <div class="chart-card"><div class="chart-title">📊 Thay đổi giá trị theo dự án</div><div class="chart-container"><canvas id="chart3"></canvas></div></div>
+                </div>
+
+                <div class="chart-grid two">
+                    <div class="chart-card"><div class="chart-title">📋 Chi Tiết Ngân Sách V0 Baseline - 12 Tháng</div><div style="overflow-x: auto; max-height: 400px;"><table class="matrix-table"><thead><tr><th>Hạng Mục</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th><th>T8</th><th>T9</th><th>T10</th><th>T11</th><th>T12</th><th>Tổng</th></tr></thead><tbody><tr><td><strong>DA Alpha</strong></td><td>1.8</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.1</td><td>2.1</td><td>2.1</td><td>2.2</td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>25.3</td></tr><tr><td><strong>DA Beta</strong></td><td>2.1</td><td>2.2</td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.6</td><td>2.8</td><td>28.5</td></tr><tr><td><strong>DA Gamma</strong></td><td>1.4</td><td>1.5</td><td>1.5</td><td>1.6</td><td>1.6</td><td>1.7</td><td>1.7</td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.9</td><td>2.1</td><td>20.1</td></tr><tr><td><strong>DA Delta</strong></td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.6</td><td>2.7</td><td>2.8</td><td>3.1</td><td>29.4</td></tr><tr><td><strong>DA Epsilon</strong></td><td>1.6</td><td>1.7</td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.9</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.0</td><td>2.1</td><td>2.3</td><td>22.5</td></tr></tbody></table></div></div>
+                    <div class="chart-card"><div class="chart-title">📋 Chi Tiết Ngân Sách Latest Version - 12 Tháng</div><div style="overflow-x: auto; max-height: 400px;"><table class="matrix-table"><thead><tr><th>Hạng Mục</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th><th>T8</th><th>T9</th><th>T10</th><th>T11</th><th>T12</th><th>Tổng</th></tr></thead><tbody><tr><td><strong>DA Alpha</strong></td><td>2.0</td><td>2.1</td><td>2.1</td><td>2.2</td><td>2.3</td><td>2.3</td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.7</td><td>2.8</td><td>28.5</td></tr><tr><td><strong>DA Beta</strong></td><td>2.4</td><td>2.5</td><td>2.5</td><td>2.6</td><td>2.7</td><td>2.7</td><td>2.8</td><td>2.9</td><td>2.9</td><td>3.0</td><td>3.1</td><td>3.3</td><td>32.1</td></tr><tr><td><strong>DA Gamma</strong></td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.0</td><td>2.1</td><td>2.1</td><td>2.1</td><td>2.2</td><td>2.2</td><td>23.8</td></tr><tr><td><strong>DA Delta</strong></td><td>2.7</td><td>2.8</td><td>2.8</td><td>2.9</td><td>3.0</td><td>3.0</td><td>3.1</td><td>3.2</td><td>3.2</td><td>3.3</td><td>3.4</td><td>3.5</td><td>35.9</td></tr><tr><td><strong>DA Epsilon</strong></td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.7</td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.8</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.0</td><td>22.0</td></tr></tbody></table></div></div>
+                </div>
+            </div>
+
+            <!-- PAGE 2 -->
+            <div id="page2" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Theo Dõi Thu Chi Hàng Tháng</h1>
+                    <p class="page-subtitle">Dòng tiền công ty từ 24/12 - 25/01 (5 tuần) - Kiểm soát thu chi thực tế</p>
+                </div>
+
+                <div class="kpi-grid page2-summary">
+                    <div class="kpi-card"><div class="kpi-label">Tiền Đầu Kỳ</div><div class="kpi-value">42.1 Tỷ</div><div class="kpi-change positive">Đầu kỳ</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Tổng Dòng Thu</div><div class="kpi-value">87.5 Tỷ</div><div class="kpi-change positive">Công ty</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Tổng Dòng Chi</div><div class="kpi-value">62.3 Tỷ</div><div class="kpi-change negative">Công ty</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Chênh Lệch Thu/Chi</div><div class="kpi-value">+25.2 Tỷ</div><div class="kpi-change positive">Dương</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Tiền Cuối Kỳ</div><div class="kpi-value">67.3 Tỷ</div><div class="kpi-change positive">Cuối kỳ</div></div>
+                </div>
+
+                <div class="chart-grid two">
+                    <div class="chart-card"><div class="chart-title">📈 Dòng Thu Chi Theo Tuần (5 Tuần: 24/12 - 25/01)</div><div class="chart-container"><canvas id="chart4"></canvas></div></div>
+                    <div class="chart-card"><div class="chart-title">📊 So Sánh Thu vs Chi Từng Tuần</div><div class="chart-container"><canvas id="chart4b"></canvas></div></div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-card"><div class="chart-title">🥧 Phân Bố Thu Theo Danh Mục</div><div class="chart-container small"><canvas id="chart4c"></canvas></div></div>
+                    <div class="chart-card"><div class="chart-title">🥧 Phân Bố Chi Theo Danh Mục</div><div class="chart-container small"><canvas id="chart4d"></canvas></div></div>
+                    <div class="chart-card"><div class="chart-title">📉 Tỷ Lệ Thu/Chi Theo Tuần (%)</div><div class="chart-container small"><canvas id="chart4e"></canvas></div></div>
+                </div>
+
+                <div class="chart-grid two">
+                    <div class="chart-card"><div class="chart-title">📋 Chi Tiết Thu Theo Danh Mục - 5 Tuần</div><div style="overflow-x: auto; max-height: 260px;"><table class="matrix-table"><thead><tr><th>Danh Mục Thu</th><th>Tuần 1</th><th>Tuần 2</th><th>Tuần 3</th><th>Tuần 4</th><th>Tuần 5</th><th>Tổng</th><th>%</th></tr></thead><tbody><tr><td><strong>Thu từ Chủ Đầu Tư</strong></td><td>12.5</td><td>14.2</td><td>13.8</td><td>15.3</td><td>12.1</td><td>67.9</td><td>77.6%</td></tr><tr><td><strong>Thu Hoạt Động TÀI CHÍNH</strong></td><td>2.1</td><td>2.3</td><td>2.2</td><td>2.4</td><td>1.9</td><td>10.9</td><td>12.4%</td></tr><tr><td><strong>Thu từ Nguồn Khác</strong></td><td>0.8</td><td>0.9</td><td>0.9</td><td>0.8</td><td>0.8</td><td>4.2</td><td>4.8%</td></tr><tr><td><strong>Khác</strong></td><td>0.5</td><td>0.5</td><td>0.5</td><td>0.5</td><td>0.5</td><td>2.5</td><td>2.9%</td></tr><tr style="background: var(--primary-light); font-weight: bold;"><td>TỔNG THU</td><td>15.9</td><td>17.9</td><td>17.4</td><td>19.0</td><td>15.3</td><td>87.5</td><td>100%</td></tr></tbody></table></div></div>
+                    <div class="chart-card"><div class="chart-title">📋 Chi Tiết Chi Theo Danh Mục - 5 Tuần</div><div style="overflow-x: auto; max-height: 260px;"><table class="matrix-table"><thead><tr><th>Danh Mục Chi</th><th>Tuần 1</th><th>Tuần 2</th><th>Tuần 3</th><th>Tuần 4</th><th>Tuần 5</th><th>Tổng</th><th>%</th></tr></thead><tbody><tr><td><strong>Chi Nhân Công</strong></td><td>6.8</td><td>7.1</td><td>6.9</td><td>7.2</td><td>5.8</td><td>33.8</td><td>54.3%</td></tr><tr><td><strong>Chi Thiết Bị</strong></td><td>2.3</td><td>2.5</td><td>2.4</td><td>2.6</td><td>2.1</td><td>12.0</td><td>19.3%</td></tr><tr><td><strong>Chi Vật Tư</strong></td><td>1.5</td><td>1.6</td><td>1.5</td><td>1.7</td><td>1.4</td><td>8.2</td><td>13.2%</td></tr><tr><td><strong>Chi Hoạt Động</strong></td><td>0.9</td><td>1.0</td><td>1.0</td><td>1.0</td><td>0.9</td><td>4.8</td><td>7.7%</td></tr><tr><td><strong>Chi Khác</strong></td><td>0.8</td><td>0.8</td><td>0.8</td><td>0.9</td><td>0.9</td><td>4.2</td><td>6.7%</td></tr><tr style="background: var(--primary-light); font-weight: bold;"><td>TỔNG CHI</td><td>12.3</td><td>13.0</td><td>12.6</td><td>13.4</td><td>11.1</td><td>62.3</td><td>100%</td></tr></tbody></table></div></div>
+                </div>
+            </div>
+
+            <!-- PAGE 3 -->
+            <div id="page3" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Tình Hình Thu Thực Tế</h1>
+                    <p class="page-subtitle">Phân tích chi tiết doanh thu theo danh mục và khoản mục chi tiết</p>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-card" style="position: relative;">
+                        <div class="chart-title">🎯 Tổng Doanh Thu So Với Kế Hoạch</div>
+                        <div class="chart-container small" style="display: flex; align-items: center; justify-content: center; padding: 12px;">
+                            <canvas id="chart6" width="420" height="200" style="width:100%; height:auto; max-width:420px;"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card"><div class="chart-title">📊 Doanh Thu: Kế Hoạch vs Thực Tế</div><div class="chart-container"><canvas id="chart7"></canvas></div></div>
+                    <div class="chart-card"><div class="chart-title">📈 Doanh Thu Thực Tế vs Năm Ngoái</div><div class="chart-container"><canvas id="chart8"></canvas></div></div>
+                </div>
+
+                <!-- Removed individual drill-down rows; consolidated into two-column layout below -->
+
+                <div class="chart-grid page3-two" style="padding: 20px 0;">
+                    <div class="stacked-col">
+                        <div class="chart-card"><div class="chart-title">💼 THU.01 - Thu từ Chủ Đầu Tư (Chi tiết 3 khoản chính)</div><div class="chart-container tall"><canvas id="chart8b"></canvas></div></div>
+                        <div class="chart-card"><div class="chart-title">📊 Thực Tế vs Kế Hoạch</div><div class="chart-container tall"><canvas id="chart8c"></canvas></div></div>
+                    </div>
+                    <div class="table-col">
+                        <div class="chart-card"><div class="chart-title">📋 Chi Tiết Doanh Thu Theo Hạng Mục - 12 Tháng</div><div style="overflow-x: auto; max-height: 650px;"><table class="matrix-table"><thead><tr><th>Danh Mục & Hạng Mục</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th><th>T8</th><th>T9</th><th>T10</th><th>T11</th><th>T12</th><th>Tổng</th><th>%</th></tr></thead><tbody><tr style="background: #fff3cd; font-weight: bold;"><td>THU.01 - Thu từ CDT</td><td>7.2</td><td>7.5</td><td>7.8</td><td>8.1</td><td>8.4</td><td>8.7</td><td>9.0</td><td>9.3</td><td>9.6</td><td>9.9</td><td>10.2</td><td>10.5</td><td>105.2</td><td>72.7%</td></tr><tr><td style="padding-left: 30px;">THU.01.01 - Tư vấn</td><td>3.2</td><td>3.3</td><td>3.5</td><td>3.6</td><td>3.8</td><td>3.9</td><td>4.1</td><td>4.2</td><td>4.4</td><td>4.5</td><td>4.7</td><td>4.8</td><td>47.0</td><td>32.5%</td></tr><tr><td style="padding-left: 30px;">THU.01.02 - Rao sự</td><td>2.5</td><td>2.6</td><td>2.7</td><td>2.8</td><td>2.9</td><td>3.0</td><td>3.1</td><td>3.2</td><td>3.3</td><td>3.4</td><td>3.5</td><td>3.6</td><td>36.6</td><td>25.3%</td></tr><tr><td style="padding-left: 30px;">THU.01.03 - Bản quyền & Khác</td><td>1.5</td><td>1.6</td><td>1.6</td><td>1.7</td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.0</td><td>2.1</td><td>21.6</td><td>14.9%</td></tr><tr style="background: #e3f2fd; font-weight: bold;"><td>THU.02 - Thu Hoạt Động Tài Chính</td><td>1.5</td><td>1.6</td><td>1.6</td><td>1.7</td><td>1.7</td><td>1.8</td><td>1.8</td><td>1.9</td><td>1.9</td><td>2.0</td><td>2.0</td><td>2.1</td><td>21.6</td><td>14.9%</td></tr><tr><td style="padding-left: 30px;">THU.02.01 - Lãi suất ngân hàng</td><td>0.9</td><td>0.9</td><td>0.9</td><td>1.0</td><td>1.0</td><td>1.0</td><td>1.1</td><td>1.1</td><td>1.1</td><td>1.2</td><td>1.2</td><td>1.2</td><td>12.6</td><td>8.7%</td></tr><tr><td style="padding-left: 30px;">THU.02.02 - Cổ tức & Khác</td><td>0.6</td><td>0.7</td><td>0.7</td><td>0.7</td><td>0.7</td><td>0.8</td><td>0.7</td><td>0.8</td><td>0.8</td><td>0.8</td><td>0.8</td><td>0.9</td><td>9.0</td><td>6.2%</td></tr><tr style="background: #f0f4f8; font-weight: bold;"><td>THU.03 - Thu từ Nguồn Khác</td><td>1.2</td><td>1.2</td><td>1.2</td><td>1.3</td><td>1.3</td><td>1.4</td><td>1.4</td><td>1.4</td><td>1.5</td><td>1.5</td><td>1.5</td><td>1.6</td><td>16.5</td><td>11.4%</td></tr><tr><td style="padding-left: 30px;">THU.03.01 - Bảo tín vệ thẳng</td><td>0.7</td><td>0.7</td><td>0.7</td><td>0.8</td><td>0.8</td><td>0.8</td><td>0.8</td><td>0.9</td><td>0.9</td><td>0.9</td><td>0.9</td><td>1.0</td><td>10.1</td><td>7.0%</td></tr><tr><td style="padding-left: 30px;">THU.03.02 - Khác</td><td>0.5</td><td>0.5</td><td>0.5</td><td>0.5</td><td>0.5</td><td>0.6</td><td>0.6</td><td>0.5</td><td>0.6</td><td>0.6</td><td>0.6</td><td>0.6</td><td>6.4</td><td>4.4%</td></tr><tr style="background: #fce4ec; font-weight: bold;"><td>THU.04 - Thu Khác</td><td>0.5</td><td>0.5</td><td>0.5</td><td>0.5</td><td>0.6</td><td>0.6</td><td>0.6</td><td>0.6</td><td>0.7</td><td>0.7</td><td>0.7</td><td>0.8</td><td>7.3</td><td>5.0%</td></tr><tr><td style="padding-left: 30px;">THU.04.01 - Doanh thu khác 1</td><td>0.3</td><td>0.3</td><td>0.3</td><td>0.3</td><td>0.3</td><td>0.3</td><td>0.3</td><td>0.3</td><td>0.4</td><td>0.4</td><td>0.4</td><td>0.4</td><td>4.2</td><td>2.9%</td></tr><tr><td style="padding-left: 30px;">THU.04.02 - Doanh thu khác 2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.3</td><td>0.3</td><td>0.3</td><td>0.3</td><td>0.3</td><td>0.3</td><td>0.3</td><td>0.4</td><td>3.1</td><td>2.1%</td></tr><tr style="background: var(--primary-light); font-weight: bold;"><td>TỔNG DOANH THU</td><td>10.4</td><td>10.8</td><td>11.1</td><td>11.6</td><td>12.0</td><td>12.5</td><td>12.8</td><td>13.2</td><td>13.7</td><td>14.1</td><td>14.6</td><td>15.0</td><td>150.8</td><td>100%</td></tr></tbody></table></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 4 -->
+            <div id="page4" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Tình Hình Chi Thực Tế</h1>
+                    <p class="page-subtitle">Kiểm soát chi tiêu so với ngân sách</p>
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card"><div class="kpi-label">Ngân Sách</div><div class="kpi-value">142.3 Tỷ</div><div class="kpi-change positive">Hiện tại</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Đã Chi</div><div class="kpi-value">87.4 Tỷ</div><div class="kpi-change negative">61.4%</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Còn Lại</div><div class="kpi-value">54.9 Tỷ</div><div class="kpi-change positive">38.6%</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Mức Vượt Kế Hoạch</div><div class="kpi-value">12-15%</div><div class="kpi-change negative">Nguy hiểm</div></div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-card" style="position: relative;">
+                        <div class="chart-title">🎯 Tổng Đã Chi So Với Kế Hoạch Chi</div>
+                        <div class="chart-container gauge" style="display: flex; align-items: center; justify-content: center; padding: 12px;">
+                            <canvas id="chart9" width="520" height="260" style="width:100%; height:100%; max-width:none;"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card"><div class="chart-title">📊 Chi Thực Tế vs Kế Hoạch Theo Tháng</div><div class="chart-container"><canvas id="chart11c"></canvas></div></div>
+                    <div class="chart-card"><div class="chart-title">📈 Lũy Kế Chi: Năm Nay vs Năm Trước</div><div class="chart-container"><canvas id="chart11d"></canvas></div></div>
+                </div>
+
+                <div class="chart-grid page3-two page4-two" style="padding: 20px 0;">
+                    <div class="stacked-col">
+                        <div class="chart-card"><div class="chart-title">🎯 Tổng Đã Chi So Với Kế Hoạch Chi</div><div class="chart-container small"><canvas id="chart9_old" width="420" height="200" style="width:100%; height:auto; max-width:420px;"></canvas></div></div>
+                        <div class="chart-card"><div class="chart-title">🥧 Phân Bổ Chi Theo Danh Mục</div><div class="chart-container tall"><canvas id="chart10"></canvas></div></div>
+                        <div class="chart-card"><div class="chart-title">📊 Thực Tế vs Kế Hoạch - Các Mục Chi</div><div class="chart-container tall"><canvas id="chart11"></canvas></div></div>
+                    </div>
+                    <div class="table-col">
+                        <div class="chart-card">
+                            <div class="chart-title">📋 Chi Tiết Chi Theo Hạng Mục - 12 Tháng</div>
+                            <div style="overflow-x: auto; max-height: 650px;">
+                                <table class="matrix-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Hạng Mục Chi</th>
+                                            <th>T1</th>
+                                            <th>T2</th>
+                                            <th>T3</th>
+                                            <th>T4</th>
+                                            <th>T5</th>
+                                            <th>T6</th>
+                                            <th>T7</th>
+                                            <th>T8</th>
+                                            <th>T9</th>
+                                            <th>T10</th>
+                                            <th>T11</th>
+                                            <th>T12</th>
+                                            <th>Tổng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="background: #fff3cd; font-weight: bold;"><td>CHI.01 - Chi cho pháp lý dự án</td><td>0.5</td><td>0.5</td><td>0.6</td><td>0.6</td><td>0.5</td><td>0.5</td><td>0.5</td><td>0.6</td><td>0.5</td><td>0.5</td><td>0.6</td><td>0.5</td><td>6.4</td></tr>
+                                        <tr style="background: #fff3cd; font-weight: bold;"><td>CHI.02 - Chi cho kiến thiết cơ bản</td><td>1.1</td><td>1.2</td><td>1.2</td><td>1.3</td><td>1.3</td><td>1.4</td><td>1.4</td><td>1.3</td><td>1.2</td><td>1.2</td><td>1.1</td><td>1.1</td><td>14.8</td></tr>
+                                        <tr style="background: #fff3cd; font-weight: bold;"><td>CHI.03 - Chi cho công tác bán hàng</td><td>0.8</td><td>0.9</td><td>0.9</td><td>1.0</td><td>0.9</td><td>0.9</td><td>0.9</td><td>0.8</td><td>0.8</td><td>0.8</td><td>0.8</td><td>0.8</td><td>10.3</td></tr>
+                                        <tr style="background: #fff3cd; font-weight: bold;"><td>CHI.04 - Chi công tác chuẩn bị</td><td>0.6</td><td>0.6</td><td>0.7</td><td>0.7</td><td>0.7</td><td>0.7</td><td>0.7</td><td>0.7</td><td>0.6</td><td>0.6</td><td>0.6</td><td>0.6</td><td>7.8</td></tr>
+                                        <tr style="background: #fff3cd; font-weight: bold;"><td>CHI.05 - Chi công tác thiết bị</td><td>0.9</td><td>1.0</td><td>1.0</td><td>1.1</td><td>1.1</td><td>1.1</td><td>1.1</td><td>1.0</td><td>1.0</td><td>0.9</td><td>0.9</td><td>0.9</td><td>12.0</td></tr>
+                                        <tr style="background: #fff3cd; font-weight: bold;"><td>CHI.06 - Chi nhân công & thầu phụ</td><td>2.0</td><td>2.1</td><td>2.3</td><td>2.4</td><td>2.5</td><td>2.6</td><td>2.6</td><td>2.5</td><td>2.4</td><td>2.3</td><td>2.2</td><td>2.2</td><td>28.1</td></tr>
+                                        <tr><td style="padding-left: 30px;">CHI.06.30.31 - Gói thầu kết cấu A</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>2.4</td></tr>
+                                        <tr><td style="padding-left: 30px;">CHI.06.30.32 - Gói thầu kết cấu B</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>2.4</td></tr>
+                                        <tr><td style="padding-left: 30px;">CHI.06.30.33 - Gói thầu kết cấu C</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>2.4</td></tr>
+                                        <tr><td style="padding-left: 30px;">CHI.06.30.34 - Gói thầu kết cấu D</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>2.4</td></tr>
+                                        <tr><td style="padding-left: 30px;">CHI.06.40.41 - Gói thầu hoàn thiện A</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>2.4</td></tr>
+                                        <tr><td style="padding-left: 30px;">CHI.06.40.06 - Gói thầu A</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>2.4</td></tr>
+                                        <tr><td style="padding-left: 30px;">CHI.06.40.07 - Gói thầu B</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>2.4</td></tr>
+                                        <tr><td style="padding-left: 30px;">CHI.06.40.08 - Gói thầu C</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>2.4</td></tr>
+                                        <tr><td style="padding-left: 30px;">CHI.06.40.15 - Gói thầu D</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>2.4</td></tr>
+                                        <tr><td style="padding-left: 30px;">CHI.06.50.13 - Gói thầu E</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>2.4</td></tr>
+                                        <tr><td style="padding-left: 30px;">CHI.06.60.01 - Gói thầu F</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>2.4</td></tr>
+                                        <tr style="background: #fff3cd; font-weight: bold;"><td>CHI.07 - Chi vật tư & NCC</td><td>1.2</td><td>1.3</td><td>1.3</td><td>1.4</td><td>1.4</td><td>1.5</td><td>1.5</td><td>1.4</td><td>1.4</td><td>1.3</td><td>1.2</td><td>1.1</td><td>16.0</td></tr>
+                                        <tr style="background: #fff3cd; font-weight: bold;"><td>CHI.08 - Chi cho hoạt động trực tiếp</td><td>0.7</td><td>0.7</td><td>0.8</td><td>0.8</td><td>0.8</td><td>0.8</td><td>0.8</td><td>0.7</td><td>0.7</td><td>0.6</td><td>0.6</td><td>0.5</td><td>8.5</td></tr>
+                                        <tr style="background: var(--primary-light); font-weight: bold;"><td>TỔNG CHI</td><td>7.8</td><td>8.3</td><td>8.8</td><td>9.3</td><td>9.2</td><td>9.5</td><td>9.5</td><td>9.0</td><td>8.6</td><td>8.2</td><td>8.0</td><td>7.7</td><td>103.9</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 5 -->
+            <div id="page5" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Phê Duyệt Chi Tiêu Tương Tác</h1>
+                    <p class="page-subtitle">Chọn khoản chi và xem ảnh hưởng lên ngân sách còn lại</p>
+                </div>
+
+                                                <div class="selector-container">
+                    <div class="selector-group">
+                        <div class="selector-label">🏗️ Chọn Dự Án</div>
+                        <select id="projectSelect" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px; font-size:12px;">
+                            <option value="DA Alpha">DA Alpha</option>
+                            <option value="DA Beta">DA Beta</option>
+                            <option value="DA Gamma">DA Gamma</option>
+                            <option value="DA Delta">DA Delta</option>
+                            <option value="DA Epsilon">DA Epsilon</option>
+                        </select>
+                    </div>
+                    <div class="selector-group">
+                        <div class="selector-label">📌 Chọn khoản chi đề xuất</div>
+                        <div class="checkbox-grid">
+                            <div class="checkbox-item"><input type="checkbox" value="4600" data-level="parent" data-code="CHI.01"><label>CHI.01 CHI CHO PHÁP LÝ DỰ ÁN</label></div>
+                            <div class="checkbox-item"><input type="checkbox" value="5200" data-level="parent" data-code="CHI.02"><label>CHI.02 CHI CHO KIẾN THIẾT CƠ BẢN</label></div>
+                            <div class="checkbox-item"><input type="checkbox" value="3900" data-level="parent" data-code="CHI.03"><label>CHI.03 CHI CHO CÔNG TÁC BÁN HÀNG</label></div>
+                            <div class="checkbox-item"><input type="checkbox" value="3600" data-level="parent" data-code="CHI.04"><label>CHI.04 CHI CÔNG TÁC CHUẨN BỊ</label></div>
+                            <div class="checkbox-item"><input type="checkbox" value="4100" data-level="parent" data-code="CHI.05"><label>CHI.05 CHI CÔNG TÁC THIẾT BỊ</label></div>
+                            <div class="checkbox-item"><input type="checkbox" value="5800" data-level="parent" data-code="CHI.06"><label>CHI.06 CHI NHÂN CÔNG & THUẾ PHẢI NỘP</label></div>
+                            <div class="checkbox-item"><input type="checkbox" value="3300" data-level="parent" data-code="CHI.07"><label>CHI.07 CHI VẬT TƯ & NHÀ CUNG CẤP</label></div>
+                            <div class="checkbox-item"><input type="checkbox" value="3000" data-level="parent" data-code="CHI.08"><label>CHI.08 CHI CHO HOẠT ĐỘNG TRỰC TIẾP</label></div>
+                        </div>
+                    </div>
+                    <div class="selector-group">
+                        <div class="selector-label">📂 Hạng mục con (có thể bỏ chọn)</div>
+                        <div class="subitem-scroll">
+                            <div class="checkbox-grid subitem-grid">
+                                <div class="checkbox-item"><input type="checkbox" value="1200" data-level="child" data-parent="CHI.01" data-code="CHI.01.10"><label>CHI.01.10 Hồ sơ pháp lý dự án</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1100" data-level="child" data-parent="CHI.01" data-code="CHI.01.20"><label>CHI.01.20 Phí giấy phép xây dựng</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="900" data-level="child" data-parent="CHI.01" data-code="CHI.01.30"><label>CHI.01.30 Tư vấn pháp lý & hợp đồng</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1400" data-level="child" data-parent="CHI.01" data-code="CHI.01.40"><label>CHI.01.40 Lệ phí thẩm định</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1300" data-level="child" data-parent="CHI.02" data-code="CHI.02.10"><label>CHI.02.10 Khảo sát địa hình</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1400" data-level="child" data-parent="CHI.02" data-code="CHI.02.20"><label>CHI.02.20 Thiết kế cơ sở</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1100" data-level="child" data-parent="CHI.02" data-code="CHI.02.30"><label>CHI.02.30 Thiết kế kỹ thuật</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1400" data-level="child" data-parent="CHI.02" data-code="CHI.02.40"><label>CHI.02.40 Thẩm tra thiết kế</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="900" data-level="child" data-parent="CHI.03" data-code="CHI.03.10"><label>CHI.03.10 Marketing & truyền thông</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1100" data-level="child" data-parent="CHI.03" data-code="CHI.03.20"><label>CHI.03.20 Sàn giao dịch & môi giới</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="800" data-level="child" data-parent="CHI.03" data-code="CHI.03.30"><label>CHI.03.30 Chăm sóc khách hàng</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1100" data-level="child" data-parent="CHI.03" data-code="CHI.03.40"><label>CHI.03.40 Chi phí sự kiện bán hàng</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="900" data-level="child" data-parent="CHI.04" data-code="CHI.04.00"><label>CHI.04.00 Chi phí bảo lãnh, bảo hiểm</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="800" data-level="child" data-parent="CHI.04" data-code="CHI.04.20"><label>CHI.04.20 An toàn lao động & VSMT</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="900" data-level="child" data-parent="CHI.04" data-code="CHI.04.30"><label>CHI.04.30 An ninh cho công trường</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1000" data-level="child" data-parent="CHI.04" data-code="CHI.04.40"><label>CHI.04.40 Trực tiếp công trình</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1200" data-level="child" data-parent="CHI.05" data-code="CHI.05.10"><label>CHI.05.10 Thiết bị thi công chính</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="900" data-level="child" data-parent="CHI.05" data-code="CHI.05.20"><label>CHI.05.20 Thiết bị phụ trợ</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1100" data-level="child" data-parent="CHI.05" data-code="CHI.05.30"><label>CHI.05.30 Lắp đặt & hiệu chỉnh</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="900" data-level="child" data-parent="CHI.05" data-code="CHI.05.40"><label>CHI.05.40 Bảo trì thiết bị</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1700" data-level="child" data-parent="CHI.06" data-code="CHI.06.10"><label>CHI.06.10 Nhân công trực tiếp</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1500" data-level="child" data-parent="CHI.06" data-code="CHI.06.20"><label>CHI.06.20 Thầu phụ kết cấu</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1600" data-level="child" data-parent="CHI.06" data-code="CHI.06.30"><label>CHI.06.30 Thầu phụ hoàn thiện</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="1000" data-level="child" data-parent="CHI.06" data-code="CHI.06.40"><label>CHI.06.40 An toàn & bảo hiểm lao động</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="900" data-level="child" data-parent="CHI.07" data-code="CHI.07.10"><label>CHI.07.10 Vật tư chính</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="700" data-level="child" data-parent="CHI.07" data-code="CHI.07.20"><label>CHI.07.20 Vật tư phụ</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="800" data-level="child" data-parent="CHI.07" data-code="CHI.07.30"><label>CHI.07.30 Vận chuyển & bốc dỡ</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="900" data-level="child" data-parent="CHI.07" data-code="CHI.07.40"><label>CHI.07.40 Nhu cầu cung cấp chiến lược</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="800" data-level="child" data-parent="CHI.08" data-code="CHI.08.10"><label>CHI.08.10 Vận hành công trường</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="700" data-level="child" data-parent="CHI.08" data-code="CHI.08.20"><label>CHI.08.20 Nhiên liệu & năng lượng</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="600" data-level="child" data-parent="CHI.08" data-code="CHI.08.30"><label>CHI.08.30 Bảo vệ & an ninh</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="900" data-level="child" data-parent="CHI.08" data-code="CHI.08.40"><label>CHI.08.40 Hậu cần hiện trường</label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                                <div class="kpi-grid page5-summary">
+                    <div class="kpi-card"><div class="kpi-label">Tổng Chi Hiện Tại</div><div class="kpi-value" id="page5SpendCurrent">0.00 Tỷ</div><div class="kpi-change">Đã duyệt</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Tổng Chi Sau Duyệt</div><div class="kpi-value" id="page5SpendAfter">0.00 Tỷ</div><div class="kpi-change negative">+ Duyệt mới</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Ngân Sách Trước Duyệt</div><div class="kpi-value" id="page5BudgetBefore">0.00 Tỷ</div><div class="kpi-change positive">Còn lại</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Ngân Sách Sau Duyệt</div><div class="kpi-value" id="page5BudgetAfter">0.00 Tỷ</div><div class="kpi-change positive">Còn lại</div></div>
+                    <div class="kpi-card"><div class="kpi-label">FHI Trước → Sau</div><div class="kpi-value" id="page5FhiPair">0.00 → 0.00</div><div class="kpi-change" id="page5FhiDelta">Δ 0.00</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Vốn Đối Ứng</div><div class="kpi-value" id="page5Counterpart">0.00 Tỷ</div><div class="kpi-change">Theo dự án</div></div>
+                </div>
+
+                                <div class="chart-grid single">
+                    <div class="chart-card">
+                        <div class="chart-title">Chi tiết ngân sách đã duyệt & cần duyệt</div>
+                        <div style="overflow-x: auto; max-height: 560px;">
+                            <table class="matrix-table approval-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã khoản</th>
+                                        <th>Hạng mục</th>
+                                        <th>Giá trị đã duyệt (Tỷ)</th>
+                                        <th>Giá trị cần duyệt (Tỷ)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="page5ApprovalBody">
+                                    <tr><td colspan="4">Chọn khoản chi để xem chi tiết.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const chartConfig = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { font: { size: 10, family: "'Be Vietnam Pro', sans-serif" }, color: '#6B7280', usePointStyle: true }, position: 'bottom' },
+                tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 10, titleFont: { size: 11 }, bodyFont: { size: 10 }, cornerRadius: 6 }
+            }
+        };
+
+        const colors = { primary: '#DC2626', secondary: '#EF4444', accent: '#F87171', light: '#FCA5A5', gray: '#9CA3AF', success: '#10B981', warning: '#F59E0B' };
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach((item) => {
+            item.addEventListener('click', (e) => {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                e.target.closest('.nav-item').classList.add('active');
+                document.getElementById('page' + item.dataset.page).classList.add('active');
+                setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+            });
+        });
+
+        // PAGE 1 CHARTS
+        new Chart(document.getElementById('chart1'), {
+            type: 'bar',
+            data: { labels: ['DA Alpha', 'DA Beta', 'DA Gamma', 'DA Delta', 'DA Epsilon'], datasets: [{ label: 'V0 (Tỷ)', data: [25.3, 28.5, 20.1, 29.4, 22.5], backgroundColor: colors.light }, { label: 'Hiện Tại (Tỷ)', data: [28.5, 32.1, 23.8, 35.9, 22.0], backgroundColor: colors.primary }] },
+            options: { ...chartConfig, scales: { y: { beginAtZero: true, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, x: { ticks: { color: colors.gray } } } }
+        });
+
+        new Chart(document.getElementById('chart2'), {
+            type: 'line',
+            data: { labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'], datasets: [{ label: 'V0 Baseline (Tỷ)', data: [125.8, 125.8, 125.8, 125.8, 125.8, 125.8, 125.8, 125.8, 125.8, 125.8, 125.8, 125.8], borderColor: colors.success, backgroundColor: 'rgba(16,185,129,0.05)', tension: 0.4, fill: false, borderWidth: 2.5, pointRadius: 4, borderDash: [5, 5] }, { label: 'Latest Version (Tỷ)', data: [125.8, 128.3, 131.2, 134.5, 136.8, 139.2, 140.5, 141.1, 142.0, 142.3, 142.3, 142.3], borderColor: colors.primary, backgroundColor: 'rgba(220,38,38,0.05)', tension: 0.4, fill: true, borderWidth: 2.5, pointRadius: 4 }] },
+            options: { ...chartConfig, scales: { y: { beginAtZero: true, min: 120, max: 145, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, x: { ticks: { color: colors.gray } } } }
+        });
+
+        new Chart(document.getElementById('chart3'), {
+            type: 'bar',
+            data: { labels: ['DA Alpha', 'DA Beta', 'DA Delta', 'DA Gamma', 'DA Epsilon'], datasets: [{ label: 'Mức Tăng (Tỷ)', data: [3.2, 3.6, 6.5, 3.7, -0.5], backgroundColor: [colors.light, colors.light, colors.primary, colors.secondary, colors.accent] }] },
+            options: { ...chartConfig, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, y: { ticks: { color: colors.gray } } } }
+        });
+
+
+        // PAGE 2 CHARTS - 5 WEEK CASH FLOW TRACKING
+        new Chart(document.getElementById('chart4'), {
+            type: 'line',
+            data: {
+                labels: ['Tuần 1 (24-30/12)', 'Tuần 2 (31/12-06/01)', 'Tuần 3 (07-13/01)', 'Tuần 4 (14-20/01)', 'Tuần 5 (21-25/01)'],
+                datasets: [
+                    { label: 'Dòng Thu (Tỷ)', data: [15.9, 17.9, 17.4, 19.0, 15.3], borderColor: colors.success, backgroundColor: 'rgba(16,185,129,0.1)', tension: 0.4, fill: true, borderWidth: 2.5, pointRadius: 4 },
+                    { label: 'Dòng Chi (Tỷ)', data: [12.3, 13.0, 12.6, 13.4, 11.1], borderColor: colors.primary, backgroundColor: 'rgba(220,38,38,0.1)', tension: 0.4, fill: true, borderWidth: 2.5, pointRadius: 4 }
+                ]
+            },
+            options: { ...chartConfig, scales: { y: { beginAtZero: true, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, x: { ticks: { color: colors.gray } } } }
+        });
+
+        new Chart(document.getElementById('chart4b'), {
+            type: 'bar',
+            data: {
+                labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4', 'Tuần 5'],
+                datasets: [
+                    { label: 'Thu', data: [15.9, 17.9, 17.4, 19.0, 15.3], backgroundColor: colors.success },
+                    { label: 'Chi', data: [12.3, 13.0, 12.6, 13.4, 11.1], backgroundColor: colors.primary }
+                ]
+            },
+            options: { ...chartConfig, scales: { y: { beginAtZero: true, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, x: { ticks: { color: colors.gray } } } }
+        });
+
+        new Chart(document.getElementById('chart4c'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Thu từ CDT (77.6%)', 'Thu Hoạt Động TÀI CHÍNH (12.4%)', 'Thu Nguồn Khác (4.8%)', 'Khác (2.9%)'],
+                datasets: [{ data: [77.6, 12.4, 4.8, 2.9], backgroundColor: [colors.primary, colors.secondary, colors.accent, colors.light] }]
+            },
+            options: chartConfig
+        });
+
+        new Chart(document.getElementById('chart4d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Chi Nhân Công (54.3%)', 'Chi Thiết Bị (19.3%)', 'Chi Vật Tư (13.2%)', 'Chi Hoạt Động (7.7%)', 'Khác (6.7%)'],
+                datasets: [{ data: [54.3, 19.3, 13.2, 7.7, 6.7], backgroundColor: [colors.primary, colors.secondary, colors.accent, colors.warning, colors.light] }]
+            },
+            options: chartConfig
+        });
+
+        new Chart(document.getElementById('chart4e'), {
+            type: 'line',
+            data: {
+                labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4', 'Tuần 5'],
+                datasets: [
+                    { label: 'Tỷ Lệ Thu/Chi (%)', data: [129.3, 137.7, 138.1, 141.8, 137.8], borderColor: colors.success, backgroundColor: 'rgba(16,185,129,0.1)', tension: 0.4, fill: true, borderWidth: 2, pointRadius: 4 }
+                ]
+            },
+            options: { ...chartConfig, scales: { y: { beginAtZero: true, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, x: { ticks: { color: colors.gray } } } }
+        });
+
+        // PAGE 3 CHARTS - DETAILED REVENUE BREAKDOWN
+        // chart6: Gauge-style (custom draw) - Page 3 Revenue Progress Gauge
+        
+        // Custom gauge chart initialization
+        (function() {
+            const canvas = document.getElementById('chart6');
+            const ctx = canvas.getContext('2d');
+            const actualValue = 10.4; // Thực tế (Tỷ)
+            const targetValue = 12.0; // Kế hoạch (Tỷ)
+            const percentageValue = Math.round((actualValue / targetValue) * 100); // % đạt được
+            const maxValue = 100;
+
+            function drawGauge() {
+                const w = canvas.width;
+                const h = canvas.height;
+                const cx = w / 2;
+                const cy = h * 0.65; // place center higher for more space for text
+                const radius = Math.min(w * 0.35, h * 0.55);
+
+                ctx.clearRect(0, 0, w, h);
+                ctx.lineCap = 'round';
+
+                // Colored bands: red (0-60), yellow (60-85), green (85-100)
+                const bands = [ { pct: 60, color: '#DC2626' }, { pct: 85, color: '#F59E0B' }, { pct: 100, color: '#10B981' } ];
+                let startPct = 0;
+                bands.forEach(b => {
+                    const startAngle = Math.PI + Math.PI * (startPct / maxValue);
+                    const endAngle = Math.PI + Math.PI * (b.pct / maxValue);
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, radius, startAngle, endAngle, false);
+                    ctx.strokeStyle = b.color;
+                    ctx.lineWidth = Math.max(18, radius * 0.12);
+                    ctx.stroke();
+                    startPct = b.pct;
+                });
+
+                // Draw outer subtle ring
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius + 12, Math.PI, 0, false);
+                ctx.strokeStyle = '#E5E7EB';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Draw needle
+                const angle = Math.PI + Math.PI * (percentageValue / maxValue);
+                const nx = cx + Math.cos(angle) * (radius - 8);
+                const ny = cy + Math.sin(angle) * (radius - 8);
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(nx, ny);
+                ctx.strokeStyle = '#111827';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // Draw center cap
+                ctx.beginPath();
+                ctx.arc(cx, cy, Math.max(7, radius * 0.08), 0, 2 * Math.PI);
+                ctx.fillStyle = '#111827';
+                ctx.fill();
+                
+                // Draw white inner circle for depth
+                ctx.beginPath();
+                ctx.arc(cx, cy, Math.max(5, radius * 0.06), 0, 2 * Math.PI);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+
+                // Percentage label - large and bold
+                ctx.font = "bold 28px 'Be Vietnam Pro'";
+                ctx.fillStyle = percentageValue <= 60 ? '#DC2626' : (percentageValue <= 85 ? '#F59E0B' : '#10B981');
+                ctx.textAlign = 'center';
+                ctx.fillText(percentageValue + '%', cx, cy + radius * 0.35);
+
+                // Actual value label - "10.4 Tỷ"
+                ctx.font = "bold 13px 'Be Vietnam Pro'";
+                ctx.fillStyle = '#111827';
+                ctx.textAlign = 'center';
+                ctx.fillText('Thực tế: ' + actualValue.toFixed(1) + ' Tỷ', cx, cy + radius * 0.55);
+
+                // Target value label - "Kế hoạch: 12.0 Tỷ"
+                ctx.font = "11px 'Be Vietnam Pro'";
+                ctx.fillStyle = '#6B7280';
+                ctx.textAlign = 'center';
+                ctx.fillText('Kế hoạch: ' + targetValue.toFixed(1) + ' Tỷ', cx, cy + radius * 0.72);
+            }
+            
+            drawGauge();
+            window.addEventListener('resize', drawGauge);
+        })();
+    // chart7: Plan vs Actual Line Chart
+        new Chart(document.getElementById('chart7'), {
+            type: 'line',
+            data: {
+                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                datasets: [
+                    { label: 'Kế Hoạch (Tỷ)', data: [12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0], borderColor: colors.success, borderWidth: 2, borderDash: [5, 5], pointRadius: 3 },
+                    { label: 'Thực Tế (Tỷ)', data: [10.4, 10.8, 11.1, 11.6, 12.0, 12.5, 12.8, 13.2, 13.7, 14.1, 14.6, 15.0], borderColor: colors.primary, backgroundColor: 'rgba(220,38,38,0.1)', tension: 0.4, fill: true, borderWidth: 2.5, pointRadius: 3 }
+                ]
+            },
+            options: { ...chartConfig, scales: { y: { beginAtZero: true, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, x: { ticks: { color: colors.gray } } } }
+        });
+
+        // chart8: Year-over-Year Comparison
+        new Chart(document.getElementById('chart8'), {
+            type: 'bar',
+            data: {
+                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                datasets: [
+                    { label: 'Năm Nay (Tỷ)', data: [10.4, 10.8, 11.1, 11.6, 12.0, 12.5, 12.8, 13.2, 13.7, 14.1, 14.6, 15.0], backgroundColor: colors.primary },
+                    { label: 'Năm Ngoái (Tỷ)', data: [9.6, 10.0, 10.2, 10.6, 10.9, 11.4, 11.7, 12.1, 12.5, 12.8, 13.1, 13.5], backgroundColor: colors.light }
+                ]
+            },
+            options: { ...chartConfig, scales: { y: { beginAtZero: true, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, x: { ticks: { color: colors.gray, fontSize: 9 } } } }
+        });
+
+        // chart8b: THU.01 Detail - 3 sub-items distribution (pie)
+        new Chart(document.getElementById('chart8b'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Tư vấn (32.5%)', 'Rao sự (25.3%)', 'Bản quyền & Khác (14.9%)'],
+                datasets: [
+                    { data: [47.0, 36.6, 21.6], backgroundColor: ['#FCD34D', '#60A5FA', '#F472B6'] }
+                ]
+            },
+            options: chartConfig
+        });
+
+        // chart8c: Actual vs Plan by Main Revenue Items (horizontal bar)
+        new Chart(document.getElementById('chart8c'), {
+            type: 'bar',
+            data: {
+                labels: ['THU.01', 'THU.02', 'THU.03', 'THU.04'],
+                datasets: [
+                    { label: 'Kế Hoạch (Tỷ)', data: [100.0, 18.0, 14.0, 6.0], backgroundColor: colors.success },
+                    { label: 'Thực Tế (Tỷ)', data: [105.2, 21.6, 16.5, 7.3], backgroundColor: colors.primary }
+                ]
+            },
+            options: { ...chartConfig, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, y: { ticks: { color: colors.gray } } } }
+        });
+
+        // PAGE 4 CHARTS - Expense overview (gauge + distribution + actual vs plan)
+        (function(){
+            const canvas = document.getElementById('chart9');
+            const ctx = canvas.getContext('2d');
+            const actualValue = 87.4; // Đã chi (Tỷ)
+            const budgetValue = 142.3; // Kế hoạch chi (Tỷ)
+            const percentageValue = Math.round((actualValue / budgetValue) * 100); // % đã sử dụng
+            const maxValue = 100;
+
+            function drawGauge4(){
+                const parent = canvas.parentElement;
+                if (parent) {
+                    const width = parent.clientWidth;
+                    const height = parent.clientHeight;
+                    if (width > 0 && height > 0) {
+                        canvas.width = width;
+                        canvas.height = height;
+                    }
+                }
+                const w = canvas.width; const h = canvas.height; const cx = w/2; const cy = h*0.65; const radius = Math.min(w*0.35, h*0.55);
+                ctx.clearRect(0,0,w,h);
+                ctx.lineCap = 'round';
+                const bands = [ {pct:50, color:'#10B981'}, {pct:80, color:'#F59E0B'}, {pct:100, color:'#DC2626'} ];
+                let sp=0; bands.forEach(b=>{ const sa=Math.PI+Math.PI*(sp/maxValue); const ea=Math.PI+Math.PI*(b.pct/maxValue); ctx.beginPath(); ctx.arc(cx,cy,radius,sa,ea,false); ctx.strokeStyle=b.color; ctx.lineWidth=Math.max(18,radius*0.12); ctx.stroke(); sp=b.pct; });
+                // outer ring
+                ctx.beginPath(); ctx.arc(cx,cy,radius+12,Math.PI,0,false); ctx.strokeStyle='#E5E7EB'; ctx.lineWidth=1; ctx.stroke();
+                // needle
+                const ang = Math.PI + Math.PI*(percentageValue/maxValue); const nx = cx+Math.cos(ang)*(radius-8); const ny = cy+Math.sin(ang)*(radius-8);
+                ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(nx,ny); ctx.strokeStyle='#111827'; ctx.lineWidth=3; ctx.stroke();
+                // center cap
+                ctx.beginPath(); ctx.arc(cx,cy,Math.max(7,radius*0.08),0,2*Math.PI); ctx.fillStyle='#111827'; ctx.fill();
+                ctx.beginPath(); ctx.arc(cx,cy,Math.max(5,radius*0.06),0,2*Math.PI); ctx.fillStyle='white'; ctx.fill();
+                // percentage - colored based on band
+                ctx.font="bold 28px 'Be Vietnam Pro'"; ctx.fillStyle=percentageValue<=50?'#10B981':(percentageValue<=80?'#F59E0B':'#DC2626'); ctx.textAlign='center'; ctx.fillText(percentageValue+'%', cx, cy+radius*0.35);
+                // actual value
+                ctx.font="bold 13px 'Be Vietnam Pro'"; ctx.fillStyle='#111827'; ctx.textAlign='center'; ctx.fillText('Đã chi: '+actualValue.toFixed(1)+' Tỷ', cx, cy+radius*0.55);
+                // budget value
+                ctx.font="11px 'Be Vietnam Pro'"; ctx.fillStyle='#6B7280'; ctx.textAlign='center'; ctx.fillText('Kế hoạch chi: '+budgetValue.toFixed(1)+' Tỷ', cx, cy+radius*0.72);
+            }
+            drawGauge4(); window.addEventListener('resize', drawGauge4);
+        })();
+
+        new Chart(document.getElementById('chart10'), {
+            type: 'doughnut',
+            data: {
+                labels: ['CHI.01 Pháp lý', 'CHI.02 Kiến thiết', 'CHI.03 Bán hàng', 'CHI.04 Chuẩn bị', 'CHI.05 Thiết bị', 'CHI.06 Nhân công & thầu phụ', 'CHI.07 Vật tư & NCC', 'CHI.08 Hoạt động trực tiếp'],
+                datasets: [{ data: [6.2, 14.2, 9.9, 7.5, 11.6, 27.0, 15.4, 8.2], backgroundColor: [colors.primary, colors.secondary, colors.accent, colors.warning, colors.success, '#FCD34D', '#60A5FA', '#9CA3AF'] }]
+            },
+            options: chartConfig
+        });
+
+        new Chart(document.getElementById('chart11'), {
+            type: 'bar',
+            data: {
+                labels: ['CHI.01', 'CHI.02', 'CHI.03', 'CHI.04', 'CHI.05', 'CHI.06', 'CHI.07', 'CHI.08'],
+                datasets: [
+                    { label: 'Kế hoạch (Tỷ)', data: [6.8, 14.0, 11.0, 8.2, 11.5, 29.5, 15.5, 9.0], backgroundColor: colors.success },
+                    { label: 'Thực tế (Tỷ)', data: [6.4, 14.8, 10.3, 7.8, 12.0, 28.1, 16.0, 8.5], backgroundColor: colors.primary }
+                ]
+            },
+            options: { ...chartConfig, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, y: { ticks: { color: colors.gray } } } }
+        });
+
+        const chart11bEl = document.getElementById('chart11b');
+        if (chart11bEl) {
+            new Chart(chart11bEl, {
+            type: 'bar',
+            data: { labels: ['Chuẩn Bị', 'Thiết Bị', 'Nhân Công', 'Vật Tư', 'Trực Tiếp'], datasets: [{ label: '% Chi', data: [89.7, 89.4, 76.7, 88.4, 85.0], backgroundColor: colors.primary }] },
+            options: { ...chartConfig, scales: { y: { beginAtZero: true, max: 100, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, x: { ticks: { color: colors.gray, fontSize: 9 } } } }
+        });
+        }
+
+        new Chart(document.getElementById('chart11c'), {
+            type: 'bar',
+            data: {
+                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                datasets: [
+                    { label: 'Kế hoạch (Tỷ)', data: [8.0, 8.5, 8.8, 9.0, 9.2, 9.4, 9.6, 9.8, 9.7, 9.5, 9.3, 9.0], backgroundColor: colors.success },
+                    { label: 'Thực tế (Tỷ)', data: [7.4, 8.2, 8.9, 9.1, 9.0, 9.6, 9.8, 10.1, 9.4, 8.9, 8.4, 8.1], backgroundColor: colors.secondary }
+                ]
+            },
+            options: { ...chartConfig, scales: { y: { beginAtZero: true, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, x: { ticks: { color: colors.gray, fontSize: 9 } } } }
+        });
+
+        new Chart(document.getElementById('chart11d'), {
+            type: 'line',
+            data: {
+                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                datasets: [
+                    { label: 'Lũy kế năm nay (Tỷ)', data: [7.4, 15.6, 24.5, 33.6, 42.6, 52.2, 62.0, 72.1, 81.5, 90.4, 98.8, 106.9], borderColor: colors.primary, backgroundColor: 'rgba(220,38,38,0.08)', tension: 0.35, fill: true, borderWidth: 2.5, pointRadius: 2 },
+                    { label: 'Lũy kế năm trước (Tỷ)', data: [6.8, 14.0, 22.0, 30.1, 38.0, 47.2, 56.1, 65.0, 73.4, 81.5, 89.0, 96.0], borderColor: colors.gray, backgroundColor: 'rgba(156,163,175,0.08)', tension: 0.35, fill: false, borderWidth: 2, pointRadius: 2, borderDash: [4, 4] }
+                ]
+            },
+            options: { ...chartConfig, scales: { y: { beginAtZero: true, ticks: { color: colors.gray }, grid: { color: '#F3F4F6' } }, x: { ticks: { color: colors.gray } } } }
+        });
+
+                // PAGE 5 - Interactive
+        const projectData = {
+            'DA Alpha': { revenue: 120.0, counterpart: 45.0, budget: 160.0, approvedExpense: 92.0 },
+            'DA Beta': { revenue: 98.0, counterpart: 38.0, budget: 140.0, approvedExpense: 78.0 },
+            'DA Gamma': { revenue: 110.0, counterpart: 41.5, budget: 150.0, approvedExpense: 86.0 },
+            'DA Delta': { revenue: 135.0, counterpart: 52.0, budget: 175.0, approvedExpense: 102.0 },
+            'DA Epsilon': { revenue: 90.0, counterpart: 33.0, budget: 125.0, approvedExpense: 70.0 }
+        };
+
+        const approvalCatalog = {
+            'CHI.01': {
+                name: 'Chi cho pháp lý dự án',
+                approved: 2.8,
+                children: [
+                    { code: 'CHI.01.10', name: 'Hồ sơ pháp lý dự án', approved: 0.6 },
+                    { code: 'CHI.01.20', name: 'Phí giấy phép xây dựng', approved: 0.7 },
+                    { code: 'CHI.01.30', name: 'Tư vấn pháp lý & hợp đồng', approved: 0.5 },
+                    { code: 'CHI.01.40', name: 'Lệ phí thẩm định', approved: 1.0 }
+                ]
+            },
+            'CHI.02': {
+                name: 'Chi cho kiến thiết cơ bản',
+                approved: 3.0,
+                children: [
+                    { code: 'CHI.02.10', name: 'Khảo sát địa hình', approved: 0.7 },
+                    { code: 'CHI.02.20', name: 'Thiết kế cơ sở', approved: 0.8 },
+                    { code: 'CHI.02.30', name: 'Thiết kế kỹ thuật', approved: 0.6 },
+                    { code: 'CHI.02.40', name: 'Thẩm tra thiết kế', approved: 0.9 }
+                ]
+            },
+            'CHI.03': {
+                name: 'Chi cho công tác bán hàng',
+                approved: 2.2,
+                children: [
+                    { code: 'CHI.03.10', name: 'Marketing & truyền thống', approved: 0.5 },
+                    { code: 'CHI.03.20', name: 'Sàn giao dịch & môi giới', approved: 0.7 },
+                    { code: 'CHI.03.30', name: 'Chăm sóc khách hàng', approved: 0.4 },
+                    { code: 'CHI.03.40', name: 'Chi phí sự kiện bán hàng', approved: 0.6 }
+                ]
+            },
+            'CHI.04': {
+                name: 'Chi công tác chuẩn bị',
+                approved: 2.4,
+                children: [
+                    { code: 'CHI.04.00', name: 'Chi phí bảo lãnh, bảo hiểm', approved: 0.6 },
+                    { code: 'CHI.04.20', name: 'An toàn lao động & VSMT', approved: 0.5 },
+                    { code: 'CHI.04.30', name: 'An ninh cho công trường', approved: 0.6 },
+                    { code: 'CHI.04.40', name: 'Trực tiếp công trình', approved: 0.7 }
+                ]
+            },
+            'CHI.05': {
+                name: 'Chi công tác thiết bị',
+                approved: 2.6,
+                children: [
+                    { code: 'CHI.05.10', name: 'Thiết bị thi công chính', approved: 0.8 },
+                    { code: 'CHI.05.20', name: 'Thiết bị phụ trợ', approved: 0.6 },
+                    { code: 'CHI.05.30', name: 'Lắp đặt & hiệu chỉnh', approved: 0.7 },
+                    { code: 'CHI.05.40', name: 'Bảo trì thiết bị', approved: 0.5 }
+                ]
+            },
+            'CHI.06': {
+                name: 'Chi nhân công & thầu phụ',
+                approved: 3.7,
+                children: [
+                    { code: 'CHI.06.10', name: 'Nhân công trực tiếp', approved: 1.1 },
+                    { code: 'CHI.06.20', name: 'Thầu phụ kết cấu', approved: 1.0 },
+                    { code: 'CHI.06.30', name: 'Thầu phụ hoàn thiện', approved: 1.0 },
+                    { code: 'CHI.06.40', name: 'An toàn & bảo hiểm lao động', approved: 0.6 }
+                ]
+            },
+            'CHI.07': {
+                name: 'Chi vật tư & NCC',
+                approved: 1.9,
+                children: [
+                    { code: 'CHI.07.10', name: 'Vật tư chính', approved: 0.5 },
+                    { code: 'CHI.07.20', name: 'Vật tư phụ', approved: 0.4 },
+                    { code: 'CHI.07.30', name: 'Vận chuyển & bốc dỡ', approved: 0.5 },
+                    { code: 'CHI.07.40', name: 'Nhà cung cấp chiến lược', approved: 0.5 }
+                ]
+            },
+            'CHI.08': {
+                name: 'Chi cho hoạt động trực tiếp',
+                approved: 1.8,
+                children: [
+                    { code: 'CHI.08.10', name: 'Vận hành công trường', approved: 0.5 },
+                    { code: 'CHI.08.20', name: 'Nhiên liệu & năng lượng', approved: 0.4 },
+                    { code: 'CHI.08.30', name: 'Bảo vệ & an ninh', approved: 0.3 },
+                    { code: 'CHI.08.40', name: 'Hậu cần hiện trường', approved: 0.6 }
+                ]
+            }
+        };
+
+        function calcFhi(revenue, counterpart, totalExpense) {
+            if (totalExpense <= 0) return 0;
+            return (0.9 * revenue * counterpart) / totalExpense;
+        }
+
+        function formatAmount(value) {
+            const safeValue = Number.isFinite(value) ? value : 0;
+            return safeValue.toFixed(2);
+        }
+
+        function updateImpact() {
+            const projectSelect = document.getElementById('projectSelect');
+            const project = projectData[projectSelect ? projectSelect.value : 'DA Alpha'] || projectData['DA Alpha'];
+
+            const parentInputs = Array.from(document.querySelectorAll('input[data-level="parent"]'));
+            const childInputs = Array.from(document.querySelectorAll('input[data-level="child"]'));
+
+            const approvals = [];
+            let totalNew = 0;
+
+            parentInputs.forEach(parent => {
+                const parentCode = parent.dataset.code;
+                const parentLabel = parent.nextElementSibling ? parent.nextElementSibling.textContent.trim() : parentCode;
+                const parentName = parentLabel.replace(parentCode, '').trim();
+                const meta = approvalCatalog[parentCode];
+
+                const children = childInputs.filter(child => child.dataset.parent === parentCode);
+                const selectedChildren = children.filter(child => child.checked);
+
+                if (!parent.checked && selectedChildren.length === 0) {
+                    return;
+                }
+
+                const newAmount = selectedChildren.length
+                    ? selectedChildren.reduce((sum, child) => sum + parseFloat(child.value) / 1000, 0)
+                    : parseFloat(parent.value) / 1000;
+
+                totalNew += newAmount;
+
+                const childRows = selectedChildren.map(child => {
+                    const childCode = child.dataset.code;
+                    const childLabel = child.nextElementSibling ? child.nextElementSibling.textContent.trim() : childCode;
+                    const childName = childLabel.replace(childCode, '').trim();
+                    const childMeta = meta && meta.children ? meta.children.find(item => item.code === childCode) : null;
+                    return {
+                        code: childCode,
+                        name: childMeta && childMeta.name ? childMeta.name : childName,
+                        approved: childMeta ? childMeta.approved : 0,
+                        newAmount: parseFloat(child.value) / 1000
+                    };
+                });
+
+                approvals.push({
+                    code: parentCode,
+                    name: meta && meta.name ? meta.name : parentName,
+                    approved: meta ? meta.approved : 0,
+                    newAmount,
+                    children: childRows
+                });
+            });
+
+            const totalExpenseBefore = project.approvedExpense;
+            const totalExpenseAfter = project.approvedExpense + totalNew;
+            const budgetBefore = project.budget - totalExpenseBefore;
+            const budgetAfter = project.budget - totalExpenseAfter;
+            const fhiBefore = calcFhi(project.revenue, project.counterpart, totalExpenseBefore);
+            const fhiAfter = calcFhi(project.revenue, project.counterpart, totalExpenseAfter);
+            const fhiDelta = fhiAfter - fhiBefore;
+
+            document.getElementById('page5SpendCurrent').textContent = totalExpenseBefore.toFixed(2) + ' Tỷ';
+            document.getElementById('page5SpendAfter').textContent = totalExpenseAfter.toFixed(2) + ' Tỷ';
+            document.getElementById('page5BudgetBefore').textContent = budgetBefore.toFixed(2) + ' Tỷ';
+            document.getElementById('page5BudgetAfter').textContent = budgetAfter.toFixed(2) + ' Tỷ';
+            document.getElementById('page5FhiPair').textContent = `${fhiBefore.toFixed(2)} → ${fhiAfter.toFixed(2)}`;
+            document.getElementById('page5Counterpart').textContent = project.counterpart.toFixed(2) + ' Tỷ';
+
+            const fhiDeltaEl = document.getElementById('page5FhiDelta');
+            if (fhiDeltaEl) {
+                const deltaText = `${fhiDelta >= 0 ? '+' : ''}${fhiDelta.toFixed(2)}`;
+                fhiDeltaEl.textContent = `Δ ${deltaText}`;
+                fhiDeltaEl.className = `kpi-change ${fhiDelta >= 0 ? 'positive' : 'negative'}`;
+            }
+
+            const approvalBody = document.getElementById('page5ApprovalBody');
+            if (approvalBody) {
+                if (approvals.length === 0) {
+                    approvalBody.innerHTML = '<tr><td colspan="4">Chọn khoản chi để xem chi tiết.</td></tr>';
+                } else {
+                    const rows = [];
+                    approvals.forEach(item => {
+                        rows.push(`<tr class="row-parent"><td>${item.code}</td><td>${item.name}</td><td>${formatAmount(item.approved)}</td><td>${formatAmount(item.newAmount)}</td></tr>`);
+                        if (item.children && item.children.length) {
+                            item.children.forEach(child => {
+                                rows.push(`<tr class="row-child"><td>${child.code}</td><td>${child.name}</td><td>${formatAmount(child.approved)}</td><td>${formatAmount(child.newAmount)}</td></tr>`);
+                            });
+                        }
+                    });
+                    approvalBody.innerHTML = rows.join('');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateImpact();
+
+            const parentInputs = Array.from(document.querySelectorAll('input[data-level="parent"]'));
+            const childInputs = Array.from(document.querySelectorAll('input[data-level="child"]'));
+
+            parentInputs.forEach(parent => {
+                parent.addEventListener('change', () => {
+                    const children = childInputs.filter(child => child.dataset.parent === parent.dataset.code);
+                    children.forEach(child => {
+                        child.checked = parent.checked;
+                    });
+                    parent.indeterminate = false;
+                    updateImpact();
+                });
+            });
+
+            childInputs.forEach(child => {
+                child.addEventListener('change', () => {
+                    const parent = parentInputs.find(item => item.dataset.code === child.dataset.parent);
+                    if (!parent) {
+                        updateImpact();
+                        return;
+                    }
+                    const siblings = childInputs.filter(item => item.dataset.parent === parent.dataset.code);
+                    const checkedCount = siblings.filter(item => item.checked).length;
+                    parent.checked = checkedCount === siblings.length;
+                    parent.indeterminate = checkedCount > 0 && checkedCount < siblings.length;
+                    updateImpact();
+                });
+            });
+
+            const projectSelect = document.getElementById('projectSelect');
+            if (projectSelect) {
+                projectSelect.addEventListener('change', updateImpact);
+            }
+
+            document.querySelectorAll('.nav-item').forEach((item) => {
+                item.addEventListener('click', (e) => {
+                    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                    e.target.closest('.nav-item').classList.add('active');
+                    document.getElementById('page' + item.dataset.page).classList.add('active');
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
