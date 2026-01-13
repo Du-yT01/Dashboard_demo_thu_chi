@@ -309,6 +309,56 @@
             line-height: 1.4;
         }
 
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            margin-bottom: 26px;
+        }
+
+        .guide-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            padding: 16px 18px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .guide-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 18px;
+            flex: 0 0 auto;
+        }
+
+        .guide-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .guide-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .guide-list {
+            margin: 8px 0 0 18px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
         .chart-container {
             position: relative;
             height: clamp(220px, 28vw, 340px);
@@ -782,6 +832,7 @@
             .nav-item { margin-bottom: 0; justify-content: center; font-size: 12px; }
             .main-content { margin-left: 0; width: 100%; padding: 20px; }
             .chart-grid, .chart-grid.two { grid-template-columns: 1fr; }
+            .guide-grid { grid-template-columns: 1fr; }
             .kpi-grid { grid-template-columns: 1fr; }
             .filter-checklist { grid-template-columns: 1fr; }
             .filter-row { grid-template-columns: 1fr; }
@@ -823,14 +874,15 @@
                 <div class="logo-icon">📊</div>
                 <div class="logo-text">QUẢN TRỊ<br>NGÂN SÁCH</div>
             </div>
-            <div class="nav-item active" data-page="1"><span>📊</span> Tổng Quan</div>
+            <div class="nav-item active" data-page="5"><span>📘</span> Hướng dẫn</div>
+            <div class="nav-item" data-page="1"><span>📊</span> Tổng Quan</div>
             <div class="nav-item" data-page="2"><span>✅</span> Duyệt Ngân Sách</div>
             <div class="nav-item" data-page="3"><span>💰</span> Tổng Thu</div>
             <div class="nav-item" data-page="4"><span>💸</span> Tổng Chi</div>
         </nav>
 
         <main class="main-content">
-            <div id="page1" class="page active">
+            <div id="page1" class="page">
                 <div class="page-header">
                     <h1 class="page-title">Tổng Quan Danh Mục Dự Án</h1>
                     <p class="page-subtitle">Đánh giá nhanh ngân sách và hiệu quả thu chi toàn công ty</p>
@@ -1307,6 +1359,83 @@
                             </thead>
                             <tbody id="p4DetailBody"></tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page5" class="page active">
+                <div class="page-header">
+                    <h1 class="page-title">Hướng Dẫn Sử Dụng Báo Cáo</h1>
+                    <p class="page-subtitle">Tóm tắt ý nghĩa và mục đích của từng trang để đọc nhanh và ra quyết định.</p>
+                </div>
+
+                <div class="section-title">Ý nghĩa từng trang</div>
+                <div class="guide-grid">
+                    <div class="guide-card">
+                        <div class="guide-icon">📊</div>
+                        <div>
+                            <div class="guide-title">Trang 1 - Tổng Quan</div>
+                            <div class="guide-text">Ảnh tổng thể ngân sách và hiệu quả thu/chi theo dự án. Dùng để nắm nhanh bức tranh chung và điểm lệch chính.</div>
+                            <ul class="guide-list">
+                                <li>KPI tổng thu/chi và thực tế.</li>
+                                <li>So sánh ngân sách tổng vs chi tiết.</li>
+                                <li>Tỷ lệ đạt kế hoạch theo dự án.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="guide-card">
+                        <div class="guide-icon">✅</div>
+                        <div>
+                            <div class="guide-title">Trang 2 - Duyệt Ngân Sách</div>
+                            <div class="guide-text">So sánh Ver 0 và Ver Latest, lọc hạng mục để xem tác động lên tổng thu/chi sau duyệt.</div>
+                            <ul class="guide-list">
+                                <li>Chênh lệch thu/chi theo version.</li>
+                                <li>Bảng chi tiết theo hạng mục.</li>
+                                <li>Bộ lọc tương tác để giả lập duyệt.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="guide-card">
+                        <div class="guide-icon">💰</div>
+                        <div>
+                            <div class="guide-title">Trang 3 - Tổng Thu</div>
+                            <div class="guide-text">Phân tích doanh thu thực tế theo danh mục, dự án và xu hướng thời gian.</div>
+                            <ul class="guide-list">
+                                <li>Gauge đạt kế hoạch thu.</li>
+                                <li>Xu hướng thu theo tháng.</li>
+                                <li>Chi tiết thu theo hạng mục.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="guide-card">
+                        <div class="guide-icon">💸</div>
+                        <div>
+                            <div class="guide-title">Trang 4 - Tổng Chi</div>
+                            <div class="guide-text">Kiểm soát chi thực tế so với ngân sách, phát hiện rủi ro vượt chi.</div>
+                            <ul class="guide-list">
+                                <li>Gauge sử dụng ngân sách chi.</li>
+                                <li>So sánh chi theo dự án.</li>
+                                <li>Chi tiết chi theo hạng mục.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Cách đọc nhanh</div>
+                <div class="guide-grid">
+                    <div class="guide-card">
+                        <div class="guide-icon">⚡</div>
+                        <div>
+                            <div class="guide-title">Ưu tiên theo thứ tự</div>
+                            <div class="guide-text">Bắt đầu từ KPI tổng quan, sau đó xem biểu đồ chênh lệch và cuối cùng là bảng chi tiết.</div>
+                        </div>
+                    </div>
+                    <div class="guide-card">
+                        <div class="guide-icon">🎯</div>
+                        <div>
+                            <div class="guide-title">Ra quyết định nhanh</div>
+                            <div class="guide-text">Dùng Trang 2 để thử thay đổi hạng mục duyệt và xem ngay tác động lên thu/chi.</div>
+                        </div>
                     </div>
                 </div>
             </div>
